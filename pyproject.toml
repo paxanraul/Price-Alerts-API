@@ -1,0 +1,41 @@
+[project]
+name = "price-alerts"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+	"fastapi",
+	"uvicorn",
+	"sqlalchemy",
+	"asyncpg",
+	"alembic",
+	"redis",
+	"arq",
+	"pydantic",
+	"pydantic-settings",
+	"pyjwt",
+	"bcrypt",
+	"httpx",
+	"structlog",
+	"prometheus-fastapi-instrumentator",
+]
+
+[project.optional-dependencies]
+dev = [
+	"pytest",
+	"pytest-asyncio",
+	"ruff",
+	"mypy",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
