@@ -17,6 +17,7 @@ dependencies = [
 	"httpx",
 	"structlog",
 	"prometheus-fastapi-instrumentator",
+	"greenlet",
 ]
 
 [project.optional-dependencies]
