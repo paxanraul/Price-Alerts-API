@@ -15,7 +15,7 @@ async def get_current_user(
 		token: str = Depends(oauth2_scheme),
 		db: AsyncSession = Depends(get_db),
 ) -> User:
-	is_blacklisted = await redis_client.get(f"Blacklist:{token}")
+	is_blacklisted = await redis_client.get(f"blacklist:{token}")
 	if is_blacklisted:
 		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен был отозван.")
 	
