@@ -1,6 +1,4 @@
-from datetime import timedelta
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -10,10 +8,9 @@ from app.services import user_service
 from app.core.security import create_access_token
 from app.core.redis import redis_client
 from app.core.config import settings
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, oauth2_scheme
 from app.models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
