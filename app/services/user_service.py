@@ -19,7 +19,7 @@ async def register(db: AsyncSession, data: UserCreate) -> User:
 
 async def authenticate(db: AsyncSession, email: str, password: str) -> User:
 	user = await user_repo.get_by_email(db, email)
-	if not user or not verify_password(password, user.hash_password):
+	if not user or not verify_password(password, user.hashed_password):
 		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неправильная почта или пароль.")
 	if not user.is_active:
 		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пользователя inactive.")
