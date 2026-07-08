@@ -12,7 +12,7 @@ async def create_alert(db: AsyncSession, data: AlertCreate, owner_id: int) -> Al
 
 
 async def list_alerts(db: AsyncSession, owner_id: int, limit: int, offset: int) -> list[Alert]: 
-	return await alert_repo.create(db, owner_id, limit, offset)
+	return await alert_repo.list_by_owner(db, owner_id, limit, offset)
 
 
 async def get_alert(db: AsyncSession, alert_id: int, owner_id: int) -> Alert:
@@ -22,10 +22,10 @@ async def get_alert(db: AsyncSession, alert_id: int, owner_id: int) -> Alert:
 	return alert
 
 
-async def update_alert(db: AsyncSession, alert_id: int, data: AlertCreate, owner_id: int) -> Alert:
+async def update_alert(db: AsyncSession, alert_id: int, data: AlertUpdate, owner_id: int) -> Alert:
 	alert = await get_alert(db, alert_id, owner_id)
 	for key, value in data.model_dump(exclude_unset=True).items():
-		setattr(alert, value, key)
+		setattr(alert, key, value)
 	await db.commit()
 	await db.refresh(alert)
 	return alert
