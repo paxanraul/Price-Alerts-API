@@ -1,3 +1,4 @@
+from arq.cron import cron
 from arq.connections import RedisSettings
 from app.core.config import settings
 from app.workers.poller import poll_prices
@@ -13,7 +14,7 @@ async def shutdown(ctx):
 
 class WorkerSettings:
 	functions = []
-	cron_jobs = []
+	cron_jobs = [cron(poll_prices, second={0, 15, 30, 45})]
 	on_startup = startup
 	on_shutdown = shutdown
 	redis_settings = RedisSettings.from_dsn(settings.REDIS_URL)
