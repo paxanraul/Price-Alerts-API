@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.services.price_service import get_price, get_all_prices
 from app.workers.poller import SYMBOLS
 
-router = APIRouter("/prices", tags=["prices"])
+router = APIRouter(prefix="/prices", tags=["prices"])
 
 
 @router.get("")
