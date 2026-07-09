@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-class AlertTrigger(BaseModel):
+class AlertTriggerResponse(BaseModel):
 	id: int
 	alert_id: int
 	price_at_trigger: float
