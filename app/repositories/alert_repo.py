@@ -28,6 +28,12 @@ async def list_by_owner(
 	return result.scalars().all()
 
 
+async def update(db: AsyncSession, alert: Alert) -> Alert:
+	await db.commit()
+	await db.refresh(alert)
+	return alert
+
+
 async def delete(db: AsyncSession, alert: Alert) -> None:
 	alert.is_active = False
 	await db.commit()
