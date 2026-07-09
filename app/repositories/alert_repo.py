@@ -28,6 +28,12 @@ async def list_by_owner(
 	return result.scalars().all()
 
 
+async def get_active_by_symbol(db: AsyncSession, symbol: str) -> list[Alert]:
+	result = await db.execute(
+		select(Alert).where(Alert.symbol == symbol, Alert.is_active == True)
+	)
+	return result.scalars().all()
+
 async def update(db: AsyncSession, alert: Alert) -> Alert:
 	await db.commit()
 	await db.refresh(alert)
