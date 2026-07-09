@@ -26,7 +26,7 @@ async def update_alert(db: AsyncSession, alert_id: int, data: AlertUpdate, owner
 	alert = await get_alert(db, alert_id, owner_id)
 	for key, value in data.model_dump(exclude_unset=True).items():
 		setattr(alert, key, value)
-	return alert_repo.update(db, alert)
+	return await alert_repo.update(db, alert)
 	
 
 async def delete_alert(db: AsyncSession, alert_id: int, owner_id: int) -> None:
