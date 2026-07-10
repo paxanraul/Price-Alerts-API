@@ -4,7 +4,7 @@ from arq.connections import RedisSettings
 from app.core.config import settings
 from app.workers.poller import poll_prices
 from app.db.base import async_session
-from app.models.alert_trigger import AlertTrigger
+from app.models import AlertTrigger
 from app.repositories import alert_repo, trigger_repo
 from app.services.evaluator import evaluate_alert
 from app.services.notifier import send_notification
