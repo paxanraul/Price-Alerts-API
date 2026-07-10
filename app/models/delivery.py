@@ -11,12 +11,12 @@ class Delivery(Base):
 
 	id: Mapped[int] = mapped_column(primary_key=True)
 	trigger_id: Mapped[int] = mapped_column(
-		ForeignKey("alert_trigger.id"),
+		ForeignKey("alert_triggers.id"),
 		nullable=False,
-		index=True
+		index=True,
 	)
 	channel: Mapped[str] = mapped_column(String(20), nullable=False)
-	status: Mapped[str] = mapped_column(String(20, default="pending"))
+	status: Mapped[str] = mapped_column(String(20), default="pending")
 	attempts: Mapped[int] = mapped_column(default=0)
 	last_error: Mapped[str | None] = mapped_column(nullable=True)
 	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
