@@ -11,3 +11,10 @@ async def poll_prices(ctx) -> None:
 		return
 	
 	await set_prices(prices)
+
+	for symbol, price in prices.items():
+		await ctx["redis"].enqueue_job(
+			"evaluate_alerts_for_symbol",
+			symbol,
+			price,
+		)
