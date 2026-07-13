@@ -33,7 +33,7 @@ async def evaluate_alerts_for_symbol(
 					price_at_trigger=price,
 				)
 				await trigger_repo.create(db, trigger)
-				await send_notification(alert, price)
+				await send_notification(db, alert, trigger)
 		
 		await db.commit()
 
