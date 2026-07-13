@@ -6,7 +6,6 @@ from app.clients.webhook import WebhookError, send_webhook
 from app.models.alert_trigger import AlertTrigger
 from app.models.delivery import Delivery
 from app.repositories import delivery_repo
-from app.clients.webhook import send_webhook
 from app.models.alert import Alert
 
 MAX_ATTEMPTS = 3
