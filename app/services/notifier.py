@@ -3,6 +3,7 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.clients.webhook import WebhookError, send_webhook
+from app.clients.telegram import TelegramError, send_telegram
 from app.models.alert_trigger import AlertTrigger
 from app.models.delivery import Delivery
 from app.repositories import delivery_repo
@@ -28,15 +29,30 @@ async def send_notification(alert: Alert, db: AsyncSession, trigger: AlertTrigge
 		"price": trigger.price_at_trigger,
 	}
 
+	telegram_text = (
+		f"Alert #{alert.id} triggered!\n"
+		f"{alert.symbol} {alert.condition} {alert.threshold}\n"
+		f"Current price: {trigger.price_at_trigger}"
+	)
+
 	for attempt in range(1, MAX_ATTEMPTS + 1):
 		delivery.attempts = attempt
 
 		try:
 			if alert.channel != "webhook":
-				raise ValueError(f"Unsupported notification channel: {alert.channel}")
+				await send_webhook(alert.channel_target, payload)
 			
-			await send_webhook(alert.channel_target, payload)
-		except WebhookError as error:
+			elif alert.channel == "telegram":
+				await send_telegram(
+					alert.channel_target,
+					telegram_text,
+				)
+
+			else:
+				raise ValueError(
+					f"Unsupported notification channel: {alert.channel}"
+				)
+		except (WebhookError, TelegramError) as error:
 			delivery.last_error = str(error)
 
 			if attempt == MAX_ATTEMPTS:
