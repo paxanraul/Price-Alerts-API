@@ -11,7 +11,7 @@ class TelegramError(Exception):
 	pass
 
 
-async def send_telegram(chat_id: int, text: str) -> None:
+async def send_telegram(chat_id: str, text: str) -> None:
 	payload = {
 		"chat_id": chat_id,
 		"text": text
