@@ -39,7 +39,7 @@ async def send_notification(alert: Alert, db: AsyncSession, trigger: AlertTrigge
 		delivery.attempts = attempt
 
 		try:
-			if alert.channel != "webhook":
+			if alert.channel == "webhook":
 				await send_webhook(alert.channel_target, payload)
 			
 			elif alert.channel == "telegram":
