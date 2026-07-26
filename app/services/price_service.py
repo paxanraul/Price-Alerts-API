@@ -2,11 +2,19 @@ import json
 from app.core.redis import redis_client
 
 PRICE_KEY_PREFIX = "price:"
+PRICE_CHANNEL = "prices"
 
 
 async def set_prices(prices: dict[str, float]) -> None:
 	for symbol, price in prices.items():
 		await redis_client.set(f"{PRICE_KEY_PREFIX}{symbol}", json.dumps(price))
+
+
+async def publish_prices(prices: dict[str, float]) -> None:
+	await redis_client.publish(
+		PRICE_CHANNEL,
+		json.dumps(prices),
+	)
 
 
 async def get_price(symbol: str) -> float | None:

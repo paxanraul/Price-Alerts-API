@@ -1,5 +1,5 @@
 from app.clients.exchange import get_prices, ExchangeError
-from app.services.price_service import set_prices
+from app.services.price_service import set_prices, publish_prices
 
 SYMBOLS = ["BTC", "ETH"]
 
@@ -11,6 +11,7 @@ async def poll_prices(ctx) -> None:
 		return
 	
 	await set_prices(prices)
+	await publish_prices(prices)
 
 	for symbol, price in prices.items():
 		await ctx["redis"].enqueue_job(
