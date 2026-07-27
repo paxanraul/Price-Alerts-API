@@ -7,9 +7,11 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from app.db.base import engine
 from app.api.router import api_router
 from app.api.ws.prices import router as ws_router
+from app.core.logging import configure_logging
 from app.core.redis import redis_client
 from app.clients.exchange import ExchangeError, get_prices
 
+configure_logging()
 app = FastAPI(title="Price Alerts")
 
 Instrumentator().instrument(app).expose(app)
