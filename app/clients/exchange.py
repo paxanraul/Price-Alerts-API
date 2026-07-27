@@ -20,9 +20,9 @@ async def get_prices(symbols: list[str]) -> dict[str, float]:
 		async with httpx.AsyncClient(timeout=5.0) as client:
 			response = await client.get(BINANCE_URL)
 			response.raise_for_status()
-	except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+	except (httpx.RequestError, httpx.HTTPStatusError) as e:
 		logger.warning("exchange_unavailable", error=str(e))
-		raise ExchangeError("Failed to fetch prices")from e
+		raise ExchangeError("Failed to fetch prices") from e
 	
 	data = response.json()
 	price_by_pair = {item["symbol"]: float(item["price"]) for item in data}
