@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.core.rate_limit import check_rate_limit
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.schemas.alert import AlertCreate, AlertResponse, AlertUpdate
@@ -16,6 +17,12 @@ async def create_alert(
 	current_user: User = Depends(get_current_user),
 	db: AsyncSession = Depends(get_db)
 ):
+	await check_rate_limit(
+		key=f"rate_limit:alerts:{current_user.id}",
+		limit=5,
+		window_seconds=60,
+	)
+
 	return await alert_service.create_alert(db, data, current_user.id)
 
 
