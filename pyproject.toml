@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 dependencies = [
 	"fastapi",
 	"uvicorn",
-	"websockets	",
+	"websockets",
 	"sqlalchemy",
 	"asyncpg",
 	"alembic",
