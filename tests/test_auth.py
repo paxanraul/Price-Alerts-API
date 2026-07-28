@@ -1,6 +1,7 @@
 from httpx import AsyncClient
 
 
+
 async def test_register_user(client: AsyncClient):
 	response = await client.post(
 		"/api/v1/auth/register",
@@ -65,3 +66,66 @@ async def test_login_with_wrong_password(client: AsyncClient):
 	})
 
 	assert response.status_code == 401
+
+
+async def test_register_with_invalid_email(client: AsyncClient):
+	response = await client.post(
+		"/api/v1/auth/register",
+		json={
+			"email": "not-an-email",
+			"password": "strong-password"
+		}
+	)
+
+	assert response.status_code == 422
+
+
+async def test_get_me_returns_current_user(
+	client: AsyncClient,
+	fake_redis,	
+):
+	user_data = {
+		"email": "test@example.com",
+		"password": "strong-password",
+	}
+
+	await client.post("/api/v1/auth/register", json=user_data)
+
+	login_response = await client.post("/api/v1/auth/login", json=user_data)
+	token = login_response.json()["access_token"]
+
+	response = await client.get(
+		"/api/v1/auth/me",
+		headers={"Authorization": f"Bearer {token}"},
+	)
+
+	assert response.status_code == 200
+	assert response.json()["email"] == user_data["email"]
+
+
+async def test_logout_blacklists_token(
+	client: AsyncClient,
+	fake_redis,
+):
+	user_data = {
+		"email": "test@example.com",
+		"password": "strong-password",
+	}
+
+	await client.post("/api/v1/auth/register", json=user_data)
+
+	login_response = await client.post("/api/v1/auth/login", json=user_data)
+	token = login_response.json()["access_token"]
+	headers={"Authorization": f"Bearer {token}"}
+
+	logout_response = await client.post(
+		"/api/v1/auth/logout",
+		headers=headers,
+	)
+
+	assert logout_response.status_code == 200
+
+	me_response = await client.get(
+		"/api/v1/auth/me",
+		headers=headers
+	)

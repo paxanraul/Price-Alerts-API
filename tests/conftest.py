@@ -1,5 +1,6 @@
 import app.models # noqa: F401
 import pytest_asyncio
+import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
@@ -7,6 +8,8 @@ from sqlalchemy.pool import NullPool
 from app.api.deps import get_db
 from app.core.config import settings
 from app.db.base import Base
+from app.api import deps
+from app.api.v1 import auth as auth_api
 from app.main import app
 
 
@@ -16,6 +19,27 @@ TestSessionLocal = async_sessionmaker(
 	class_=AsyncSession,
 	expire_on_commit=False,
 )
+
+
+class FakeRedis:
+	def __init__(self):
+		self.data = {}
+
+	async def get(self, key: str):
+		return self.data.get(key)
+
+	async def set(self, key: str, value: str, ex: int):
+		self.data[key] = value
+
+
+@pytest.fixture
+def fake_redis(monkeypatch):
+	fake_redis_client = FakeRedis()
+
+	monkeypatch.setattr(deps, "redis_client", fake_redis_client)
+	monkeypatch.setattr(auth_api, "redis_client", fake_redis_client)
+
+	return fake_redis_client
 
 
 @pytest_asyncio.fixture(autouse=True)
