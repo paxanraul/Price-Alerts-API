@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import NullPool
 
 from app.api.deps import get_db
+from app.api.v1 import alerts as alerts_api
 from app.core.config import settings
 from app.db.base import Base
 from app.api import deps
@@ -40,6 +41,19 @@ def fake_redis(monkeypatch):
 	monkeypatch.setattr(auth_api, "redis_client", fake_redis_client)
 
 	return fake_redis_client
+
+
+async def allow_rate_limit(*args, **kwargs):
+	return None
+
+
+@pytest.fixture
+def disable_rate_limit(monkeypatch):
+	monkeypatch.setattr(
+		alerts_api,
+		"check_rate_limit",
+		allow_rate_limit,
+	)
 
 
 @pytest_asyncio.fixture(autouse=True)
