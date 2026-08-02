@@ -195,3 +195,28 @@ async def test_delete_alert_deactivates_it(
 
 	assert get_response.status_code == 200
 	assert get_response.json()["is_active"] is False
+
+
+async def test_other_user_cannot_access_or_update_alert(
+		client: AsyncClient,
+		fake_redis,
+		disable_rate_limit,
+):
+	owner_headers = await get_auth_headers(client, "owner@example.com")
+	other_headers = await get_auth_headers(client, "other@example.com")
+
+	create_response = await client.post(
+		"/api/v1/alerts",
+		headers=owner_headers,
+		json=ALERT_DATA,
+	)
+	assert create_response.status_code == 201
+
+	alert_id = create_response.json()["id"]
+
+	update_response = await client.patch(
+		f"/api/v1/alerts/{alert_id}",
+		headers=other_headers,
+		json={"threshold": 200.0},
+	)
+	assert update_response.status_code == 404
