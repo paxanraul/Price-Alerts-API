@@ -8,6 +8,7 @@ from sqlalchemy.pool import NullPool
 from app.api.deps import get_db
 from app.api.v1 import alerts as alerts_api
 from app.core.config import settings
+from app.core import rate_limit
 from app.db.base import Base
 from app.api import deps
 from app.api.v1 import auth as auth_api
@@ -25,6 +26,7 @@ TestSessionLocal = async_sessionmaker(
 class FakeRedis:
 	def __init__(self):
 		self.data = {}
+		self.expirations = {}
 
 	async def get(self, key: str):
 		return self.data.get(key)
@@ -32,6 +34,14 @@ class FakeRedis:
 	async def set(self, key: str, value: str, ex: int):
 		self.data[key] = value
 
+	async def incr(self, key: str) -> int:
+		count = int(self.data.get(key, 0)) + 1
+		self.data[key] = count
+
+		return count 
+
+	async def expire(self, key: str, seconds: int):
+		self.expirations[key] = seconds
 
 @pytest.fixture
 def fake_redis(monkeypatch):
@@ -39,6 +49,7 @@ def fake_redis(monkeypatch):
 
 	monkeypatch.setattr(deps, "redis_client", fake_redis_client)
 	monkeypatch.setattr(auth_api, "redis_client", fake_redis_client)
+	monkeypatch.setattr(rate_limit, "redis_client", fake_redis_client)
 
 	return fake_redis_client
 
