@@ -100,3 +100,98 @@ async def test_list_alerts_returns_only_current_users(
 	alerts = response.json()
 	assert len(alerts) == 1
 	assert alerts[0]["id"] == owner_create_response.json()["id"]
+
+
+async def test_get_alert_by_id(
+		client: AsyncClient,
+		fake_redis,
+		disable_rate_limit,
+):
+	headers = await get_auth_headers(client, "owner@example.com")
+
+	create_response = await client.post(
+		"/api/v1/alerts",
+		headers=headers,
+		json=ALERT_DATA,
+	)
+	assert create_response.status_code == 201
+
+	alert_id = create_response.json()["id"]
+
+	response = await client.get(
+		f"/api/v1/alerts/{alert_id}",
+		headers=headers,
+	)
+
+	assert response.status_code == 200
+
+	data = response.json()
+	assert data["id"] == alert_id
+	assert data["symbol"] == ALERT_DATA["symbol"]
+	assert data["threshold"] == ALERT_DATA["threshold"]
+
+
+async def test_update_alert_threshold(
+		client: AsyncClient,
+		fake_redis,
+		disable_rate_limit,
+):
+	headers = await get_auth_headers(client, "owner@example.com")
+
+	create_response = await client.post(
+		"/api/v1/alerts",
+		headers=headers,
+		json=ALERT_DATA,
+	)
+	assert create_response.status_code == 201
+
+	alert_id = create_response.json()["id"]
+
+	response = await client.patch(
+		f"/api/v1/alerts/{alert_id}",
+		headers=headers,
+		json={"threshold": 200.0},
+	)
+
+	assert response.status_code == 200
+	assert response.json()["threshold"] == 200
+
+	get_response = await client.get(
+		f"/api/v1/alerts/{alert_id}",
+		headers=headers,
+	)
+
+	assert get_response.status_code == 200
+	assert get_response.json()["threshold"] == 200.0
+
+
+async def test_delete_alert_deactivates_it(
+		client: AsyncClient,
+		fake_redis,
+		disable_rate_limit,
+):
+	headers = await get_auth_headers(client, "owner@example.com")
+
+	create_response = await client.post(
+		"/api/v1/alerts",
+		headers=headers,
+		json=ALERT_DATA,
+	)
+	assert create_response.status_code == 201
+
+	alert_id = create_response.json()["id"]
+
+	delete_response = await client.delete(
+		f"/api/v1/alerts/{alert_id}",
+		headers=headers,
+	)
+
+	assert delete_response.status_code == 204
+
+	get_response = await client.get(
+		f"/api/v1/alerts/{alert_id}",
+		headers=headers,
+	)
+
+	assert get_response.status_code == 200
+	assert get_response.json()["is_active"] is False
