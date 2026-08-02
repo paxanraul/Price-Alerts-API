@@ -214,6 +214,12 @@ async def test_other_user_cannot_access_or_update_alert(
 
 	alert_id = create_response.json()["id"]
 
+	get_response = await client.get(
+		f"/api/v1/alerts/{alert_id}",
+		headers=other_headers,
+	)
+	assert get_response.status_code == 404
+
 	update_response = await client.patch(
 		f"/api/v1/alerts/{alert_id}",
 		headers=other_headers,
